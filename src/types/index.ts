@@ -70,6 +70,7 @@ export interface SiteContent {
     headline: string;
     subheadline: string;
     ctaText: string;
+    ctaLink?: string;
     backgroundVideo?: string;
   };
   about: {

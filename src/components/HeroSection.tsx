@@ -9,7 +9,7 @@ interface HeroConfig {
   headline: string;
   subheadline: string;
   ctaText: string;
-  ctaLink: string;
+  ctaLink?: string;
 }
 
 interface Props {
@@ -64,7 +64,7 @@ export function HeroSection({ config }: Props) {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="flex flex-wrap gap-4 mb-12"
             >
-              <Link href={config.ctaLink} className="btn-primary text-base px-7 py-3.5">
+              <Link href={config.ctaLink ?? '/shop'} className="btn-primary text-base px-7 py-3.5">
                 {config.ctaText} <ArrowRight className="w-4 h-4" />
               </Link>
               <Link href="/about"

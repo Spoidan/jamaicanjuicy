@@ -5,6 +5,7 @@ export const siteContent: SiteContent = {
     headline: 'Straight From the Island.',
     subheadline: 'Handcrafted Jamaican juices made with real fruit, real culture, and real love. No fillers. No nonsense.',
     ctaText: 'Shop Fresh Juices',
+    ctaLink: '/shop',
   },
   about: {
     headline: 'Born in Jamaica. Bottled with Love.',
