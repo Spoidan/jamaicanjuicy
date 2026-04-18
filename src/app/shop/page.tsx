@@ -1,6 +1,10 @@
 import type { Metadata } from 'next';
 import { ShopClient } from '@/components/ShopClient';
 import { Footer } from '@/components/Footer';
+import { siteContent } from '@/data/content';
+import sql from '@/lib/db';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Shop Fresh Juices',
@@ -9,20 +13,17 @@ export const metadata: Metadata = {
 
 async function getProducts() {
   try {
-    const res = await fetch('http://localhost:3000/api/products', { cache: 'no-store' });
-    return res.json();
-  } catch {
-    return (await import('@/data/products-data.json')).default;
-  }
+    const rows = await sql`SELECT data FROM products ORDER BY created_at ASC`;
+    if (rows.length > 0) return rows.map((r) => r.data);
+  } catch { /* fall through */ }
+  return (await import('@/data/products-data.json')).default;
 }
 
 async function getContact() {
   try {
-    const res = await fetch('http://localhost:3000/api/site-config', { cache: 'no-store' });
-    const config = await res.json();
-    return config.contact;
+    const rows = await sql`SELECT config FROM site_config WHERE id = 1`;
+    return rows[0]?.config?.contact ?? siteContent.contact;
   } catch {
-    const { siteContent } = await import('@/data/content');
     return siteContent.contact;
   }
 }

@@ -7,14 +7,25 @@ import { TestimonialsSection } from '@/components/TestimonialsSection';
 import { OffersSection } from '@/components/OffersSection';
 import { SubscriptionSection } from '@/components/SubscriptionSection';
 import { Footer } from '@/components/Footer';
+import { siteContent } from '@/data/content';
+import sql from '@/lib/db';
+
+export const dynamic = 'force-dynamic';
 
 async function getSiteConfig() {
   try {
-    const res = await fetch('http://localhost:3000/api/site-config', { cache: 'no-store' });
-    return res.json();
+    const rows = await sql`SELECT config FROM site_config WHERE id = 1`;
+    const config = rows[0]?.config ?? {};
+    return {
+      hero: { ...siteContent.hero, ...config.hero },
+      marquee: config.marquee ?? ['🥭 Fresh Daily', '🌺 No Preservatives', '🍊 Real Fruit Only'],
+      offers: config.offers ?? [],
+      social: { instagram: 'jamaicanjuicy', tiktok: 'jamaicanjuicy', instagramUrl: '#', tiktokUrl: '#', ...config.social },
+      about: { ...siteContent.about, ...config.about },
+      contact: { ...siteContent.contact, ...config.contact },
+      testimonials: config.testimonials ?? [],
+    };
   } catch {
-    const { siteContent } = await import('@/data/content');
-    const products = await import('@/data/products-data.json');
     return {
       hero: siteContent.hero,
       marquee: ['🥭 Fresh Daily', '🌺 No Preservatives', '🍊 Real Fruit Only'],
@@ -29,11 +40,10 @@ async function getSiteConfig() {
 
 async function getProducts() {
   try {
-    const res = await fetch('http://localhost:3000/api/products', { cache: 'no-store' });
-    return res.json();
-  } catch {
-    return (await import('@/data/products-data.json')).default;
-  }
+    const rows = await sql`SELECT data FROM products ORDER BY created_at ASC`;
+    if (rows.length > 0) return rows.map((r) => r.data);
+  } catch { /* fall through */ }
+  return (await import('@/data/products-data.json')).default;
 }
 
 export default async function HomePage() {

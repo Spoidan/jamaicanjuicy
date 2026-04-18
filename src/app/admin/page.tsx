@@ -374,7 +374,9 @@ export default function AdminPage() {
   }
 
   const loadProducts = useCallback(async () => {
-    const r = await fetch('/api/products'); setProducts(await r.json());
+    const r = await fetch('/api/products');
+    const data = await r.json();
+    setProducts(Array.isArray(data) ? data : []);
   }, []);
 
   const loadConfig = useCallback(async () => {
