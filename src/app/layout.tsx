@@ -5,6 +5,7 @@ import { CartDrawer } from '@/components/CartDrawer';
 import { SignInDrawer } from '@/components/SignInDrawer';
 import { Toaster } from '@/components/Toaster';
 import { AnnouncementBanner } from '@/components/AnnouncementBanner';
+import { StoreHydration } from '@/components/StoreHydration';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://jamaicanjuicy.com'),
@@ -42,6 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Navbar />
         </div>
         <main>{children}</main>
+        <StoreHydration />
         <CartDrawer />
         <SignInDrawer />
         <Toaster />

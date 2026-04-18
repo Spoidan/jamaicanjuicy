@@ -64,6 +64,7 @@ export const useAuthStore = create<AuthStore>()(
     {
       name: 'jj-auth',
       partialize: (s) => ({ user: s.user, verified: s.verified }),
+      skipHydration: true,
     }
   )
 );
