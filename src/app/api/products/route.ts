@@ -6,24 +6,39 @@ function authCheck(req: NextRequest) {
 }
 
 export async function GET() {
-  const rows = await sql`SELECT data FROM products ORDER BY created_at ASC`;
-  return NextResponse.json(rows.map((r) => r.data));
+  try {
+    const rows = await sql`SELECT data FROM products ORDER BY created_at ASC`;
+    return NextResponse.json(rows.map((r) => r.data));
+  } catch (err) {
+    console.error('[products GET]', err);
+    return NextResponse.json({ error: String(err) }, { status: 500 });
+  }
 }
 
 export async function POST(req: NextRequest) {
   if (!authCheck(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  const product = await req.json();
-  await sql`
-    INSERT INTO products (id, data)
-    VALUES (${product.id}, ${JSON.stringify(product)})
-    ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data
-  `;
-  return NextResponse.json({ success: true });
+  try {
+    const product = await req.json();
+    await sql`
+      INSERT INTO products (id, data)
+      VALUES (${product.id}, ${JSON.stringify(product)})
+      ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data
+    `;
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error('[products POST]', err);
+    return NextResponse.json({ error: String(err) }, { status: 500 });
+  }
 }
 
 export async function DELETE(req: NextRequest) {
   if (!authCheck(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  const { id } = await req.json();
-  await sql`DELETE FROM products WHERE id = ${id}`;
-  return NextResponse.json({ success: true });
+  try {
+    const { id } = await req.json();
+    await sql`DELETE FROM products WHERE id = ${id}`;
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error('[products DELETE]', err);
+    return NextResponse.json({ error: String(err) }, { status: 500 });
+  }
 }
