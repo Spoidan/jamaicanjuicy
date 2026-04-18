@@ -8,6 +8,7 @@ import {
   AlertCircle, ArrowLeft, ShieldCheck,
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/auth-store';
+import { useCartStore } from '@/lib/store';
 import Link from 'next/link';
 
 type TopMode = 'login' | 'register';
@@ -76,6 +77,7 @@ function Drawer({ open, onClose, title, onBack, children }: {
 
 export function SignInDrawer() {
   const { signInOpen, closeSignIn, user, verified, logout, setUser, setVerified } = useAuthStore();
+  const { items, openCart } = useCartStore();
   const [mode, setMode] = useState<TopMode>('login');
   const [regStep, setRegStep] = useState<RegStep>('postcode');
 
@@ -192,6 +194,7 @@ export function SignInDrawer() {
     setUser({ name: data.user.name, email: data.user.email, phone: data.user.phone, addresses: data.user.addresses ?? [], selectedAddressId: data.user.selectedAddressId ?? null });
     setVerified(true);
     handleClose();
+    if (items.length > 0) setTimeout(() => openCart(), 300);
   }
 
   if (mode === 'login') {
@@ -302,7 +305,7 @@ export function SignInDrawer() {
     setUser({ name: rd.user.name, email: rd.user.email, phone: rd.user.phone, addresses: rd.user.addresses ?? [], selectedAddressId: rd.user.selectedAddressId ?? null });
     setVerified(true);
     setRegStep('done');
-    setTimeout(handleClose, 1200);
+    setTimeout(() => { handleClose(); if (items.length > 0) setTimeout(() => openCart(), 300); }, 1200);
   }
 
   const str = pwStrength(password);

@@ -6,15 +6,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useCartStore } from '@/lib/store';
 import { useAuthStore } from '@/lib/auth-store';
 import { formatPrice } from '@/lib/utils';
-import { AuthFlow } from './AuthFlow';
 import Image from 'next/image';
 import Link from 'next/link';
 
-type Step = 'cart' | 'auth' | 'checkout' | 'payment' | 'success';
+type Step = 'cart' | 'checkout' | 'payment' | 'success';
 
 export function CartDrawer() {
   const { items, isOpen, closeCart, removeItem, updateQuantity, total, clearCart } = useCartStore();
-  const { user, verified, selectAddress } = useAuthStore();
+  const { user, verified, selectAddress, openSignIn } = useAuthStore();
   const [step, setStep] = useState<Step>('cart');
   const [notes, setNotes] = useState('');
   const [deliveryType, setDeliveryType] = useState<'pickup' | 'delivery'>('delivery');
@@ -25,12 +24,12 @@ export function CartDrawer() {
   const selectedAddress = user?.addresses?.find((a) => a.id === user.selectedAddressId);
 
   function handleProceed() {
-    if (verified && user) setStep('checkout');
-    else setStep('auth');
-  }
-
-  function handleAuthComplete() {
-    setTimeout(() => setStep('checkout'), 200);
+    if (verified && user) {
+      setStep('checkout');
+    } else {
+      closeCart();
+      openSignIn();
+    }
   }
 
   async function handlePlaceOrder() {
@@ -70,7 +69,6 @@ export function CartDrawer() {
   const cartTotal = total();
   const TITLES: Record<Step, string> = {
     cart: 'Your Cart',
-    auth: 'Create Account',
     checkout: 'Review Order',
     payment: 'Payment',
     success: 'Order Placed!',
@@ -198,13 +196,6 @@ export function CartDrawer() {
                 </div>
               )}
 
-              {/* AUTH step */}
-              {step === 'auth' && (
-                <div className="p-5">
-                  <AuthFlow onComplete={handleAuthComplete} />
-                </div>
-              )}
-
               {/* CHECKOUT step */}
               {step === 'checkout' && user && (
                 <div className="p-5 space-y-5">
@@ -281,7 +272,7 @@ export function CartDrawer() {
             </div>
 
             {/* Footer */}
-            {step !== 'success' && step !== 'auth' && items.length > 0 && (
+            {step !== 'success' && items.length > 0 && (
               <div className="p-5 border-t border-neutral-100 dark:border-neutral-800 safe-bottom space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="font-semibold">Total</span>
