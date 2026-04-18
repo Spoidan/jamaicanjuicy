@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateOrderId } from '@/lib/utils';
-import sql from '@/lib/db';
+import sql, { parseJson } from '@/lib/db';
 
 export async function GET(req: NextRequest) {
   const key = new URL(req.url).searchParams.get('key');
@@ -62,7 +62,7 @@ function toOrder(row: Record<string, unknown>) {
     deliveryAddress: row.delivery_address,
     deliveryType: row.delivery_type,
     notes: row.notes,
-    items: row.items,
+    items: parseJson(row.items),
     total: Number(row.total),
     status: row.status,
     createdAt: row.created_at,

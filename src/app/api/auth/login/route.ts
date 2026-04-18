@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import sql from '@/lib/db';
+import sql, { parseJson } from '@/lib/db';
 
 function verifyPassword(password: string, salt: string, hash: string): boolean {
   try {
@@ -26,7 +26,8 @@ export async function POST(req: NextRequest) {
       success: true,
       user: {
         id: user.id, name: user.name, email: user.email, phone: user.phone,
-        addresses: user.addresses, selectedAddressId: user.selected_address_id,
+        addresses: parseJson(user.addresses),
+        selectedAddressId: user.selected_address_id,
       },
     });
   } catch (err) {

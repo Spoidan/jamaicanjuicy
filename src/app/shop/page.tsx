@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { ShopClient } from '@/components/ShopClient';
 import { Footer } from '@/components/Footer';
 import { siteContent } from '@/data/content';
-import sql from '@/lib/db';
+import sql, { parseJson } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 async function getProducts() {
   try {
     const rows = await sql`SELECT data FROM products ORDER BY created_at ASC`;
-    if (rows.length > 0) return rows.map((r) => r.data);
+    if (rows.length > 0) return rows.map((r) => parseJson(r.data));
   } catch { /* fall through */ }
   return (await import('@/data/products-data.json')).default;
 }
@@ -22,7 +22,8 @@ async function getProducts() {
 async function getContact() {
   try {
     const rows = await sql`SELECT config FROM site_config WHERE id = 1`;
-    return rows[0]?.config?.contact ?? siteContent.contact;
+    const cfg = rows[0] ? parseJson<Record<string, unknown>>(rows[0].config) : {};
+    return (cfg.contact as typeof siteContent.contact) ?? siteContent.contact;
   } catch {
     return siteContent.contact;
   }
@@ -42,7 +43,8 @@ export default async function ShopPage() {
               All juices are made to order. No preservatives. No shortcuts. Just fruit.
             </p>
           </div>
-          <ShopClient products={products} />
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+          <ShopClient products={products as any} />
         </div>
       </div>
       <Footer content={contact} />

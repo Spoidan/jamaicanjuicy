@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import sql from '@/lib/db';
+import sql, { parseJson } from '@/lib/db';
 
 function authCheck(req: NextRequest) {
   return new URL(req.url).searchParams.get('key') === process.env.ADMIN_KEY;
@@ -8,7 +8,7 @@ function authCheck(req: NextRequest) {
 export async function GET() {
   try {
     const rows = await sql`SELECT data FROM products ORDER BY created_at ASC`;
-    return NextResponse.json(rows.map((r) => r.data));
+    return NextResponse.json(rows.map((r) => parseJson(r.data)));
   } catch (err) {
     console.error('[products GET]', err);
     return NextResponse.json({ error: String(err) }, { status: 500 });

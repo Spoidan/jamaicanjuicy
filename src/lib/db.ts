@@ -1,26 +1,16 @@
 import postgres from 'postgres';
 
-const isPooler = (process.env.DATABASE_URL ?? '').includes(':6543');
-
 const sql = postgres(process.env.DATABASE_URL!, {
   prepare: false,
   ssl: 'require',
-  max: isPooler ? 10 : 3,
+  max: 10,
   idle_timeout: 20,
-  types: {
-    jsonb: {
-      to: 3802,
-      from: [3802],
-      serialize: JSON.stringify,
-      parse: JSON.parse,
-    },
-    json: {
-      to: 114,
-      from: [114],
-      serialize: JSON.stringify,
-      parse: JSON.parse,
-    },
-  },
 });
+
+/** Parse a value that may come back as a JSON string from PgBouncer */
+export function parseJson<T>(v: unknown): T {
+  if (typeof v === 'string') return JSON.parse(v) as T;
+  return v as T;
+}
 
 export default sql;

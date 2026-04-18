@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import sql from '@/lib/db';
+import sql, { parseJson } from '@/lib/db';
 
 export async function GET() {
   try {
     const rows = await sql`SELECT config FROM site_config WHERE id = 1`;
-    return NextResponse.json(rows[0]?.config ?? {});
+    return NextResponse.json(rows[0] ? parseJson(rows[0].config) : {});
   } catch (err) {
     console.error('[site-config GET]', err);
     return NextResponse.json({ error: String(err) }, { status: 500 });
@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
   try {
     const updates = await req.json();
     const rows = await sql`SELECT config FROM site_config WHERE id = 1`;
-    const current = (rows[0]?.config ?? {}) as Record<string, unknown>;
+    const current = rows[0] ? parseJson<Record<string, unknown>>(rows[0].config) : {};
     const merged = deepMerge(current, updates);
     await sql`
       INSERT INTO site_config (id, config) VALUES (1, ${JSON.stringify(merged)})
