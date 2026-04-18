@@ -378,7 +378,19 @@ export default function AdminPage() {
   }, []);
 
   const loadConfig = useCallback(async () => {
-    const r = await fetch('/api/site-config'); setConfig(await r.json());
+    const r = await fetch('/api/site-config');
+    const raw = await r.json();
+    setConfig({
+      hero: { headline: '', subheadline: '', ctaText: '', ...raw.hero },
+      marquee: raw.marquee ?? [],
+      offers: raw.offers ?? [],
+      social: { instagram: '', tiktok: '', instagramUrl: '', tiktokUrl: '', ...raw.social },
+      about: { headline: '', story: '', mission: '', ...raw.about },
+      contact: { phone: '', email: '', address: '', hours: '', ...raw.contact },
+      testimonials: raw.testimonials ?? [],
+      deliveryZones: raw.deliveryZones ?? [],
+      pinnedBannerOfferId: raw.pinnedBannerOfferId ?? '',
+    });
   }, []);
 
   const loadSubscriptions = useCallback(async () => {
