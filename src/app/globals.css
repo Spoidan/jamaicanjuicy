@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: 'Georgia', serif;
+  --font-body: system-ui, -apple-system, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-cream text-neutral-900 font-body;
+  }
+
+  * {
+    @apply box-border;
+  }
+
+  ::selection {
+    @apply bg-mango/30 text-neutral-900;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-mango text-white font-semibold text-base
+           shadow-juice hover:shadow-juice-lg hover:scale-105 active:scale-95
+           transition-all duration-200 cursor-pointer select-none;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full border-2 border-mango text-mango font-semibold text-base
+           hover:bg-mango hover:text-white active:scale-95
+           transition-all duration-200 cursor-pointer select-none;
+  }
+
+  .card {
+    @apply rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-800
+           shadow-sm hover:shadow-md dark:shadow-dark-card transition-shadow duration-300;
+  }
+
+  .section-pad {
+    @apply px-4 sm:px-6 lg:px-12 py-16 lg:py-24;
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #FF9B3D 0%, #FFD700 50%, #FF6B35 100%);
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl border border-neutral-200 dark:border-neutral-700
+           bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100
+           focus:outline-none focus:ring-2 focus:ring-mango/50 focus:border-mango
+           placeholder:text-neutral-400 transition-all duration-200;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { @apply bg-transparent; }
+::-webkit-scrollbar-thumb { @apply bg-mango/40 rounded-full; }
+::-webkit-scrollbar-thumb:hover { @apply bg-mango/70; }
+
+/* Marquee pause on hover */
+.marquee-container:hover .animate-marquee,
+.marquee-container:hover .animate-marquee2 {
+  animation-play-state: paused;
+}
+
+/* Mobile safe area */
+@supports (padding: max(0px)) {
+  .safe-bottom { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
+}

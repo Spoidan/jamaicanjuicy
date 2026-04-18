@@ -1,0 +1,80 @@
+[
+  {
+    "id": "7301234567890",
+    "description": "Fresh mango season is HERE 🥭 Watch how we press 50 mangoes into one batch #jamaicanjuicy #freshfruit #mango",
+    "thumbnail": "https://images.unsplash.com/photo-1622597467836-f3285f2131b8?w=600&q=80",
+    "videoUrl": "https://www.tiktok.com/@jamaicanjuicy",
+    "likes": 24500,
+    "comments": 432,
+    "shares": 1200,
+    "views": 280000,
+    "createdAt": "2024-01-15T10:00:00Z",
+    "hashtags": ["jamaicanjuicy", "freshfruit", "mango"],
+    "featured": true
+  },
+  {
+    "id": "7301234567891",
+    "description": "Sorrel season means BUSINESS 🌺 This is how we steep it overnight #sorrel #jamaicanjuicy #christmas",
+    "thumbnail": "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=600&q=80",
+    "videoUrl": "https://www.tiktok.com/@jamaicanjuicy",
+    "likes": 18200,
+    "comments": 318,
+    "shares": 890,
+    "views": 195000,
+    "createdAt": "2024-01-10T14:00:00Z",
+    "hashtags": ["sorrel", "jamaicanjuicy", "christmas"],
+    "featured": true
+  },
+  {
+    "id": "7301234567892",
+    "description": "The Island Bundle is BACK ✈️ 6 flavors, one box, pure vibes #jamaicanjuicy #bundle #tropicalflavors",
+    "thumbnail": "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=600&q=80",
+    "videoUrl": "https://www.tiktok.com/@jamaicanjuicy",
+    "likes": 31000,
+    "comments": 621,
+    "shares": 2100,
+    "views": 420000,
+    "createdAt": "2024-01-08T09:00:00Z",
+    "hashtags": ["jamaicanjuicy", "bundle", "tropicalflavors"],
+    "featured": true
+  },
+  {
+    "id": "7301234567893",
+    "description": "Tamarind Fire challenge 🔥🌶️ Can you handle it? #tamarind #spicy #jamaicanjuicy",
+    "thumbnail": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80",
+    "videoUrl": "https://www.tiktok.com/@jamaicanjuicy",
+    "likes": 45600,
+    "comments": 987,
+    "shares": 3400,
+    "views": 890000,
+    "createdAt": "2024-01-05T16:00:00Z",
+    "hashtags": ["tamarind", "spicy", "jamaicanjuicy"],
+    "featured": false
+  },
+  {
+    "id": "7301234567894",
+    "description": "Sunday batch prep 💚 Coconut Cane day! Fresh pressed right here #sugarcane #coconut #jamaicanjuicy",
+    "thumbnail": "https://images.unsplash.com/photo-1534353436294-0dbd4bdac845?w=600&q=80",
+    "videoUrl": "https://www.tiktok.com/@jamaicanjuicy",
+    "likes": 12300,
+    "comments": 245,
+    "shares": 560,
+    "views": 145000,
+    "createdAt": "2024-01-01T11:00:00Z",
+    "hashtags": ["sugarcane", "coconut", "jamaicanjuicy"],
+    "featured": false
+  },
+  {
+    "id": "7301234567895",
+    "description": "Morning routine ft. our cleanse 🌿 Start your day right #morningcleanse #healthyjuice #jamaicanjuicy",
+    "thumbnail": "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&q=80",
+    "videoUrl": "https://www.tiktok.com/@jamaicanjuicy",
+    "likes": 9800,
+    "comments": 189,
+    "shares": 420,
+    "views": 112000,
+    "createdAt": "2023-12-28T08:00:00Z",
+    "hashtags": ["morningcleanse", "healthyjuice", "jamaicanjuicy"],
+    "featured": false
+  }
+]

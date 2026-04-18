@@ -1,0 +1,123 @@
+{
+  "pinnedBannerOfferId": "offer-1",
+  "hero": {
+    "headline": "Straight From the Island.",
+    "subheadline": "Handcrafted Jamaican juices made with real fruit, real culture, and real love. No fillers. No nonsense.",
+    "ctaText": "Shop Fresh Juices",
+    "ctaLink": "/shop"
+  },
+  "marquee": [
+    "🥭 Fresh Daily",
+    "🌺 No Preservatives",
+    "🍊 Real Fruit Only",
+    "🌿 Jamaican Recipes",
+    "🥥 Made to Order",
+    "🍋 Zero Fillers",
+    "🌶️ Authentic Flavors",
+    "❤️ Family Owned"
+  ],
+  "offers": [
+    {
+      "id": "offer-1",
+      "emoji": "🎉",
+      "title": "First Order Deal",
+      "description": "Get 20% off your first order when you sign up for SMS updates.",
+      "cta": "Claim Offer",
+      "color": "from-orange-500 to-amber-400",
+      "productId": "blue-lagoon"
+    },
+    {
+      "id": "offer-2",
+      "emoji": "💧",
+      "title": "Detox Bundle",
+      "description": "2× Activated Detox + 1× Blue Lagoon. Reset your body, island style.",
+      "cta": "Add to Cart",
+      "color": "from-teal-500 to-green-400",
+      "productId": "activated-detox"
+    },
+    {
+      "id": "offer-3",
+      "emoji": "🌺",
+      "title": "Hibiscus Special",
+      "description": "Our Hibiscus Pineapple Punch is selling fast. Get yours before it's gone.",
+      "cta": "Shop Now",
+      "color": "from-pink-500 to-rose-400",
+      "productId": "hibiscus-pineapple-punch"
+    }
+  ],
+  "social": {
+    "instagram": "jamaicanjuicy",
+    "tiktok": "jamaicanjuicy",
+    "instagramUrl": "https://instagram.com/jamaicanjuicy",
+    "tiktokUrl": "https://tiktok.com/@jamaicanjuicy"
+  },
+  "about": {
+    "headline": "Born in Jamaica. Bottled with Love.",
+    "story": "Every bottle starts with a memory — the mango tree in Grandma's yard, market days in Kingston, the sorrel she'd brew every Christmas. We took those memories and turned them into something you can taste.",
+    "mission": "Our mission is simple: bring authentic Jamaican flavors to your table using only whole fruits, traditional recipes, and zero shortcuts.",
+    "founderName": "Jamaican Juicy",
+    "founderBio": "Started from a family kitchen in 2021, now serving thousands of juice lovers across the region. Every batch is made fresh, every order is personal.",
+    "founderImage": "https://images.unsplash.com/photo-1607631568010-a87245c0daf8?w=600&q=80"
+  },
+  "contact": {
+    "phone": "+1 (876) 555-0100",
+    "email": "hello@jamaicanjuicy.com",
+    "instagram": "@jamaicanjuicy",
+    "tiktok": "@jamaicanjuicy",
+    "address": "Kingston, Jamaica & Miami, FL",
+    "hours": "Mon–Sat 8am–6pm EST"
+  },
+  "testimonials": [
+    {
+      "id": "t1",
+      "name": "Deja W.",
+      "location": "Miami, FL",
+      "rating": 5,
+      "text": "The Blue Lagoon is EVERYTHING. I've never seen anything so beautiful and it tastes even better than it looks.",
+      "avatar": "🧕🏾"
+    },
+    {
+      "id": "t2",
+      "name": "Marcus T.",
+      "location": "Brooklyn, NY",
+      "rating": 5,
+      "text": "The Hibiscus Punch reminds me of sorrel back home. My whole family is obsessed.",
+      "avatar": "👨🏿"
+    },
+    {
+      "id": "t3",
+      "name": "Sarah K.",
+      "location": "Atlanta, GA",
+      "rating": 5,
+      "text": "I do the Activated Detox every Monday. It's become a ritual. Honestly changed my relationship with wellness.",
+      "avatar": "👩🏽"
+    },
+    {
+      "id": "t4",
+      "name": "Calvin R.",
+      "location": "Toronto, ON",
+      "rating": 5,
+      "text": "Cane & Coconut is elite. I ordered 3 bottles and they were gone before I got home.",
+      "avatar": "🧔🏾"
+    },
+    {
+      "id": "t5",
+      "name": "Aisha M.",
+      "location": "Orlando, FL",
+      "rating": 5,
+      "text": "The subscription saves me every week. Fresh juice without thinking about it — what more could you want?",
+      "avatar": "👩🏿‍🦱"
+    },
+    {
+      "id": "t6",
+      "name": "Devon P.",
+      "location": "Houston, TX",
+      "rating": 5,
+      "text": "10/10 no notes. Best juice I've had outside of Jamaica. Fast delivery too.",
+      "avatar": "👨🏾"
+    }
+  ],
+  "deliveryZones": [
+    "DY"
+  ]
+}

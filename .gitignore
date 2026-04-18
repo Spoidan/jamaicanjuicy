@@ -1,0 +1,11 @@
+.next/
+node_modules/
+.env.local
+.env
+src/data/orders.json
+src/data/content-override.json
+*.log
+.DS_Store
+Thumbs.db
+setup-db.mjs
+seed.mjs

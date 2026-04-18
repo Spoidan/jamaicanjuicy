@@ -1,0 +1,177 @@
+[
+  {
+    "id": "activated-detox",
+    "name": "Activated Detox",
+    "description": "Activated charcoal water blended with okra, cucumber, lemon, and strawberry. Our most powerful cleanse — deeply refreshing, zero bitterness.",
+    "price": 7.99,
+    "originalPrice": null,
+    "image": "/images/products/product-1776477869512.jpg",
+    "category": "fresh",
+    "flavor": [
+      "okra",
+      "cucumber",
+      "lemon",
+      "strawberry"
+    ],
+    "sizes": [
+      {
+        "label": "12 oz",
+        "ml": 355,
+        "price": 7.99
+      },
+      {
+        "label": "16 oz",
+        "ml": 473,
+        "price": 9.99
+      },
+      {
+        "label": "32 oz",
+        "ml": 946,
+        "price": 17.99
+      }
+    ],
+    "featured": true,
+    "badge": "Best Seller",
+    "ingredients": [
+      "Activated Charcoal Water",
+      "Okra",
+      "Cucumber",
+      "Lemon",
+      "Strawberry"
+    ],
+    "inStock": true,
+    "rating": 4.9,
+    "reviewCount": 287
+  },
+  {
+    "id": "hibiscus-pineapple-punch",
+    "name": "Hibiscus Pineapple Punch",
+    "description": "Deep crimson hibiscus slow-steeped with fresh pineapple and squeezed lemon. Bold, tart, and absolutely addictive.",
+    "price": 8.99,
+    "originalPrice": null,
+    "image": "/images/juice-2.jpeg",
+    "category": "fresh",
+    "flavor": [
+      "hibiscus",
+      "pineapple",
+      "lemon"
+    ],
+    "sizes": [
+      {
+        "label": "12 oz",
+        "ml": 355,
+        "price": 6.99
+      },
+      {
+        "label": "16 oz",
+        "ml": 473,
+        "price": 8.99
+      },
+      {
+        "label": "32 oz",
+        "ml": 946,
+        "price": 15.99
+      }
+    ],
+    "featured": true,
+    "badge": "Fan Fav",
+    "ingredients": [
+      "Dried Hibiscus",
+      "Fresh Pineapple",
+      "Lemon",
+      "Cane Sugar",
+      "Ginger"
+    ],
+    "inStock": true,
+    "rating": 4.8,
+    "reviewCount": 341
+  },
+  {
+    "id": "blue-lagoon",
+    "name": "Blue Lagoon",
+    "description": "Butterfly pea flower infused with young coconut water, kiwi, raspberry, and a lime squeeze. The most beautiful drink you'll ever taste.",
+    "price": 10.99,
+    "originalPrice": null,
+    "image": "/images/juice-3.jpeg",
+    "category": "fresh",
+    "flavor": [
+      "butterfly pea",
+      "coconut",
+      "kiwi",
+      "raspberry",
+      "lime"
+    ],
+    "sizes": [
+      {
+        "label": "12 oz",
+        "ml": 355,
+        "price": 8.99
+      },
+      {
+        "label": "16 oz",
+        "ml": 473,
+        "price": 10.99
+      },
+      {
+        "label": "32 oz",
+        "ml": 946,
+        "price": 19.99
+      }
+    ],
+    "featured": true,
+    "badge": "New",
+    "ingredients": [
+      "Butterfly Pea Flower",
+      "Young Coconut Water",
+      "Kiwi",
+      "Raspberry",
+      "Lime"
+    ],
+    "inStock": true,
+    "rating": 5,
+    "reviewCount": 198
+  },
+  {
+    "id": "cane-coconut",
+    "name": "Cane & Coconut",
+    "description": "Fresh-pressed sugarcane meets young coconut water with a squeeze of lime and scattered pomegranate seeds. Pure island energy.",
+    "price": 8.49,
+    "originalPrice": null,
+    "image": "/images/juice-4.jpeg",
+    "category": "fresh",
+    "flavor": [
+      "sugarcane",
+      "coconut",
+      "lime",
+      "pomegranate"
+    ],
+    "sizes": [
+      {
+        "label": "12 oz",
+        "ml": 355,
+        "price": 6.49
+      },
+      {
+        "label": "16 oz",
+        "ml": 473,
+        "price": 8.49
+      },
+      {
+        "label": "32 oz",
+        "ml": 946,
+        "price": 14.99
+      }
+    ],
+    "featured": true,
+    "badge": "Classic",
+    "ingredients": [
+      "Fresh Sugarcane",
+      "Young Coconut Water",
+      "Key Lime",
+      "Pomegranate"
+    ],
+    "inStock": true,
+    "rating": 4.7,
+    "reviewCount": 224
+  }
+]

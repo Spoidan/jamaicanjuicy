@@ -1,0 +1,37 @@
+[
+  {
+    "id": "user_1776475595804",
+    "name": "Jules",
+    "email": "spoidanid4454@gmail.com",
+    "phone": "0746445345",
+    "address": "12 hvsfvhjhaftgfgf",
+    "postcode": "DY2 9LO",
+    "passwordHash": "b88044e777e39aead15298110361bb829c5c73947b9e826ef3cbcdede75e42fe496ba386f625a0725074895a03e2291da14293fe38c3cc5adbfb2e6ff746aedc",
+    "salt": "3120a04ba1f0b99efaaa1ce6c7d57b00",
+    "createdAt": "2026-04-18T01:26:35.804Z"
+  },
+  {
+    "id": "user_1776476670053",
+    "name": "Juless",
+    "email": "spino@gmail.com",
+    "phone": "08686768",
+    "addresses": [
+      {
+        "id": "addr_1776476670053",
+        "label": "Home",
+        "address": "kjqgyyukgsq",
+        "postcode": "DY2 0OO"
+      },
+      {
+        "id": "addr_1776476730267",
+        "label": "work",
+        "address": "frwfdsdfd",
+        "postcode": "DY2 9PL"
+      }
+    ],
+    "selectedAddressId": "addr_1776476730267",
+    "passwordHash": "0ed47a117d12fe08f5290ea3d4b476ae85184d9eda253075c974ac8604d682d83b0d0f95567198892cde6247a9f6cd1ab51aa4f65724d521d09cedbd9740d8cf",
+    "salt": "6d8950031f4939b8827dd07aa61b9930",
+    "createdAt": "2026-04-18T01:44:30.053Z"
+  }
+]
