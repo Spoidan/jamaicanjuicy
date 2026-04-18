@@ -6,7 +6,7 @@ import type { Order } from '@/types';
 import {
   Package, Settings, FileText, Star, Pencil, Trash2, Plus, X, Save,
   Repeat, Instagram, MapPin, LayoutDashboard, Menu, LogOut, ChevronRight,
-  Bell, Upload, Check,
+  Bell, Upload, Check, BookOpen, CheckCircle,
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -19,14 +19,14 @@ interface SiteConfig {
   marquee: string[];
   offers: Offer[];
   social: { instagram: string; tiktok: string; instagramUrl: string; tiktokUrl: string };
-  about: { headline: string; story: string; mission: string };
+  about: { headline: string; story: string; mission: string; founderName: string; founderBio: string; founderImage: string };
   contact: { phone: string; email: string; address: string; hours: string };
   testimonials: Testimonial[];
   deliveryZones: string[];
   pinnedBannerOfferId?: string;
 }
 
-type Section = 'orders' | 'products' | 'hero' | 'offers' | 'reviews' | 'content' | 'zones' | 'subscriptions';
+type Section = 'orders' | 'products' | 'hero' | 'offers' | 'reviews' | 'story' | 'content' | 'zones' | 'subscriptions';
 
 const STATUS_COLORS: Record<string, string> = {
   pending:   'bg-yellow-100 text-yellow-800',
@@ -44,7 +44,8 @@ const NAV_ITEMS: { id: Section; label: string; icon: React.ReactNode; desc: stri
   { id: 'hero',          label: 'Hero Section',     icon: <LayoutDashboard className="w-4 h-4" />, desc: 'Homepage headline & CTA' },
   { id: 'offers',        label: 'Offers & Banner',  icon: <Bell className="w-4 h-4" />,          desc: 'Promo cards & top banner' },
   { id: 'reviews',       label: 'Reviews',          icon: <Star className="w-4 h-4" />,          desc: 'Customer testimonials' },
-  { id: 'content',       label: 'Content',          icon: <FileText className="w-4 h-4" />,      desc: 'About, social & contact' },
+  { id: 'story',         label: 'Our Story',        icon: <BookOpen className="w-4 h-4" />,      desc: 'About page content' },
+  { id: 'content',       label: 'Content',          icon: <FileText className="w-4 h-4" />,      desc: 'Social & contact info' },
   { id: 'zones',         label: 'Delivery Zones',   icon: <MapPin className="w-4 h-4" />,        desc: 'UK postcode coverage' },
   { id: 'subscriptions', label: 'Subscriptions',    icon: <Repeat className="w-4 h-4" />,        desc: 'Weekly & bi-weekly plans' },
 ];
@@ -355,7 +356,7 @@ export default function AdminPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [config, setConfig] = useState<SiteConfig | null>(null);
   const [subscriptions, setSubscriptions] = useState<{ id: string; name: string; email: string; frequency: string; status: string; flavors: string[]; createdAt: string }[]>([]);
-  const [msg, setMsg] = useState('');
+  const [toast, setToast] = useState<{ text: string; id: number } | null>(null);
   const [saving, setSaving] = useState(false);
   const [newZone, setNewZone] = useState('');
 
@@ -365,7 +366,11 @@ export default function AdminPage() {
   const [editingOffer, setEditingOffer] = useState<Offer | null>(null);
   const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
 
-  function flash(text: string) { setMsg(text); setTimeout(() => setMsg(''), 3000); }
+  function flash(text: string) {
+    const id = Date.now();
+    setToast({ text, id });
+    setTimeout(() => setToast((t) => (t?.id === id ? null : t)), 3500);
+  }
 
   async function login(key: string) {
     const res = await fetch(`/api/orders?key=${key}`);
@@ -387,7 +392,7 @@ export default function AdminPage() {
       marquee: raw.marquee ?? [],
       offers: raw.offers ?? [],
       social: { instagram: '', tiktok: '', instagramUrl: '', tiktokUrl: '', ...raw.social },
-      about: { headline: '', story: '', mission: '', ...raw.about },
+      about: { headline: '', story: '', mission: '', founderName: '', founderBio: '', founderImage: '', ...raw.about },
       contact: { phone: '', email: '', address: '', hours: '', ...raw.contact },
       testimonials: raw.testimonials ?? [],
       deliveryZones: raw.deliveryZones ?? [],
@@ -479,11 +484,24 @@ export default function AdminPage() {
               <p className="text-neutral-400 text-xs mt-0.5">{activeSection?.desc}</p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            {msg && <span className="text-green-600 text-sm font-medium animate-fade-in">{msg}</span>}
-            <div className="w-8 h-8 rounded-full bg-mango flex items-center justify-center text-white text-sm font-bold">A</div>
-          </div>
+          <div className="w-8 h-8 rounded-full bg-mango flex items-center justify-center text-white text-sm font-bold">A</div>
         </header>
+
+        {/* ── Toast notification ── */}
+        {toast && (
+          <div className="fixed bottom-6 right-6 z-[100] flex items-center gap-3 bg-neutral-900 text-white px-5 py-4 rounded-2xl shadow-2xl animate-slide-up min-w-[240px]">
+            <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+              <CheckCircle className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <p className="font-semibold text-sm">{toast.text}</p>
+              <p className="text-neutral-400 text-xs mt-0.5">Changes saved to database</p>
+            </div>
+            <button onClick={() => setToast(null)} className="ml-auto p-1 hover:bg-white/10 rounded-lg transition-colors">
+              <X className="w-4 h-4 text-neutral-400" />
+            </button>
+          </div>
+        )}
 
         {/* Scrollable content */}
         <main className="flex-1 overflow-y-auto p-4 sm:p-6">
@@ -916,6 +934,59 @@ export default function AdminPage() {
             </div>
           )}
 
+          {/* ── OUR STORY ── */}
+          {section === 'story' && config && (
+            <div className="max-w-2xl space-y-6">
+              <div className="bg-white rounded-2xl border border-neutral-200 p-5 shadow-sm">
+                <h2 className="font-semibold mb-4 flex items-center gap-2"><BookOpen className="w-4 h-4 text-mango" /> About Page Content</h2>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-1">Section Headline</label>
+                    <input className="input-field" placeholder="e.g. Born in Jamaica. Bottled with Love." value={config.about.headline} onChange={(e) => setConfig(c => c && ({ ...c, about: { ...c.about, headline: e.target.value } }))} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-1">Our Story</label>
+                    <textarea className="input-field resize-none" rows={4} placeholder="Tell your brand story..." value={config.about.story} onChange={(e) => setConfig(c => c && ({ ...c, about: { ...c.about, story: e.target.value } }))} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-1">Mission Statement</label>
+                    <textarea className="input-field resize-none" rows={2} placeholder="Your mission in one or two sentences." value={config.about.mission} onChange={(e) => setConfig(c => c && ({ ...c, about: { ...c.about, mission: e.target.value } }))} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-2xl border border-neutral-200 p-5 shadow-sm">
+                <h2 className="font-semibold mb-4">Founder / Brand Card</h2>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-1">Display Name</label>
+                    <input className="input-field" placeholder="e.g. Jamaican Juicy" value={config.about.founderName} onChange={(e) => setConfig(c => c && ({ ...c, about: { ...c.about, founderName: e.target.value } }))} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-1">Bio</label>
+                    <textarea className="input-field resize-none" rows={3} placeholder="Short founder or brand biography..." value={config.about.founderBio} onChange={(e) => setConfig(c => c && ({ ...c, about: { ...c.about, founderBio: e.target.value } }))} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-1">Photo URL</label>
+                    <div className="flex gap-2 items-start">
+                      <input className="input-field flex-1" placeholder="https://..." value={config.about.founderImage} onChange={(e) => setConfig(c => c && ({ ...c, about: { ...c.about, founderImage: e.target.value } }))} />
+                      {config.about.founderImage && (
+                        <div className="relative w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 border border-neutral-200">
+                          <Image src={config.about.founderImage} alt="preview" fill className="object-cover" sizes="64px" />
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-xs text-neutral-400 mt-1">Use the Products image uploader to get a URL, then paste it here.</p>
+                  </div>
+                </div>
+              </div>
+
+              <button onClick={() => saveConfig({ about: config.about })} disabled={saving} className="btn-primary">
+                <Save className="w-4 h-4" /> {saving ? 'Saving...' : 'Save Our Story'}
+              </button>
+            </div>
+          )}
+
           {/* ── CONTENT ── */}
           {section === 'content' && config && (
             <div className="max-w-2xl space-y-6">
@@ -930,16 +1001,6 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* About */}
-              <div className="bg-white rounded-2xl border border-neutral-200 p-5 shadow-sm">
-                <h2 className="font-semibold mb-4">About Section</h2>
-                <div className="space-y-3">
-                  <input className="input-field" placeholder="Headline" value={config.about.headline} onChange={(e) => setConfig(c => c && ({ ...c, about: { ...c.about, headline: e.target.value } }))} />
-                  <textarea className="input-field resize-none" rows={3} placeholder="Story" value={config.about.story} onChange={(e) => setConfig(c => c && ({ ...c, about: { ...c.about, story: e.target.value } }))} />
-                  <textarea className="input-field resize-none" rows={2} placeholder="Mission" value={config.about.mission} onChange={(e) => setConfig(c => c && ({ ...c, about: { ...c.about, mission: e.target.value } }))} />
-                </div>
-              </div>
-
               {/* Contact */}
               <div className="bg-white rounded-2xl border border-neutral-200 p-5 shadow-sm">
                 <h2 className="font-semibold mb-4">Contact Info</h2>
@@ -951,7 +1012,7 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              <button onClick={() => saveConfig({ social: config.social, about: config.about, contact: config.contact })} disabled={saving} className="btn-primary">
+              <button onClick={() => saveConfig({ social: config.social, contact: config.contact })} disabled={saving} className="btn-primary">
                 <Save className="w-4 h-4" /> {saving ? 'Saving...' : 'Save Content'}
               </button>
             </div>
