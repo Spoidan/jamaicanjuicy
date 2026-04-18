@@ -967,16 +967,21 @@ export default function AdminPage() {
                     <textarea className="input-field resize-none" rows={3} placeholder="Short founder or brand biography..." value={config.about.founderBio} onChange={(e) => setConfig(c => c && ({ ...c, about: { ...c.about, founderBio: e.target.value } }))} />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-1">Photo URL</label>
-                    <div className="flex gap-2 items-start">
-                      <input className="input-field flex-1" placeholder="https://..." value={config.about.founderImage} onChange={(e) => setConfig(c => c && ({ ...c, about: { ...c.about, founderImage: e.target.value } }))} />
-                      {config.about.founderImage && (
-                        <div className="relative w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 border border-neutral-200">
-                          <Image src={config.about.founderImage} alt="preview" fill className="object-cover" sizes="64px" />
-                        </div>
-                      )}
+                    <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-2">Photo</label>
+                    <ImageCropUploader
+                      current={config.about.founderImage}
+                      adminKey={adminKey}
+                      onUploaded={(url) => setConfig(c => c && ({ ...c, about: { ...c.about, founderImage: url } }))}
+                    />
+                    <div className="mt-3">
+                      <p className="text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-1">Or paste a URL directly</p>
+                      <input
+                        className="input-field"
+                        placeholder="https://..."
+                        value={config.about.founderImage}
+                        onChange={(e) => setConfig(c => c && ({ ...c, about: { ...c.about, founderImage: e.target.value } }))}
+                      />
                     </div>
-                    <p className="text-xs text-neutral-400 mt-1">Use the Products image uploader to get a URL, then paste it here.</p>
                   </div>
                 </div>
               </div>
