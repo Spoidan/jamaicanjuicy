@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import sql from '@/lib/db';
+import sql, { parseJson } from '@/lib/db';
 
 export async function GET(req: NextRequest) {
   const key = new URL(req.url).searchParams.get('key');
@@ -47,7 +47,7 @@ export async function PATCH(req: NextRequest) {
 function toSub(row: Record<string, unknown>) {
   return {
     id: row.id, name: row.name, email: row.email, phone: row.phone,
-    address: row.address, frequency: row.frequency, flavors: row.flavors,
+    address: row.address, frequency: row.frequency, flavors: parseJson(row.flavors),
     status: row.status, createdAt: row.created_at,
   };
 }
