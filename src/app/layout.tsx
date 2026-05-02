@@ -6,6 +6,8 @@ import { SignInDrawer } from '@/components/SignInDrawer';
 import { Toaster } from '@/components/Toaster';
 import { AnnouncementBanner } from '@/components/AnnouncementBanner';
 import { StoreHydration } from '@/components/StoreHydration';
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://jamaicanjuicy.com'),
@@ -47,6 +49,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <CartDrawer />
         <SignInDrawer />
         <Toaster />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
