@@ -6,12 +6,14 @@ import type { Order } from '@/types';
 import {
   Package, Settings, FileText, Star, Pencil, Trash2, Plus, X, Save,
   Repeat, Instagram, MapPin, LayoutDashboard, Menu, LogOut, ChevronRight,
-  Bell, Upload, Check, BookOpen, CheckCircle,
+  Bell, Upload, Check, BookOpen, CheckCircle, GripVertical, MessageSquare,
+  ThumbsUp, ThumbsDown,
 } from 'lucide-react';
 import Image from 'next/image';
 
 /* ── Types ── */
-interface Product { id: string; name: string; description: string; price: number; image: string; category: string; featured: boolean; badge?: string; inStock: boolean; rating: number; reviewCount: number; sizes: { label: string; ml: number; price: number }[] }
+interface Product { id: string; name: string; description: string; price: number; originalPrice?: number; image: string; category: string; flavor: string[]; ingredients: string[]; featured: boolean; badge?: string; inStock: boolean; rating: number; reviewCount: number; sizes: { label: string; ml: number; price: number }[] }
+interface AdminReview { id: string; product_id: string; product_name: string; order_id: string; customer_name: string; customer_email: string; rating: number; comment: string; status: string; created_at: string; }
 interface Offer { id: string; emoji: string; title: string; description: string; cta: string; color: string; productId: string }
 interface Testimonial { id: string; name: string; location: string; rating: number; text: string; avatar: string }
 interface SiteConfig {
@@ -26,7 +28,7 @@ interface SiteConfig {
   pinnedBannerOfferId?: string;
 }
 
-type Section = 'orders' | 'products' | 'hero' | 'offers' | 'reviews' | 'story' | 'content' | 'zones' | 'subscriptions';
+type Section = 'orders' | 'products' | 'hero' | 'offers' | 'reviews' | 'story' | 'content' | 'zones' | 'subscriptions' | 'product-reviews';
 
 const STATUS_COLORS: Record<string, string> = {
   pending:   'bg-yellow-100 text-yellow-800',
@@ -47,7 +49,8 @@ const NAV_ITEMS: { id: Section; label: string; icon: React.ReactNode; desc: stri
   { id: 'story',         label: 'Our Story',        icon: <BookOpen className="w-4 h-4" />,      desc: 'About page content' },
   { id: 'content',       label: 'Content',          icon: <FileText className="w-4 h-4" />,      desc: 'Social & contact info' },
   { id: 'zones',         label: 'Delivery Zones',   icon: <MapPin className="w-4 h-4" />,        desc: 'UK postcode coverage' },
-  { id: 'subscriptions', label: 'Subscriptions',    icon: <Repeat className="w-4 h-4" />,        desc: 'Weekly & bi-weekly plans' },
+  { id: 'subscriptions',    label: 'Subscriptions',    icon: <Repeat className="w-4 h-4" />,          desc: 'Weekly & bi-weekly plans' },
+  { id: 'product-reviews', label: 'Product Reviews',  icon: <MessageSquare className="w-4 h-4" />,   desc: 'Approve customer reviews' },
 ];
 
 /* ── Login screen ── */
@@ -85,8 +88,8 @@ function LoginScreen({ onLogin, error }: { onLogin: (key: string) => void; error
 }
 
 /* ── Sidebar ── */
-function Sidebar({ active, onChange, onLogout, orderCount }: {
-  active: Section; onChange: (s: Section) => void; onLogout: () => void; orderCount: number;
+function Sidebar({ active, onChange, onLogout, orderCount, pendingReviewCount }: {
+  active: Section; onChange: (s: Section) => void; onLogout: () => void; orderCount: number; pendingReviewCount: number;
 }) {
   return (
     <aside className="flex flex-col h-full bg-neutral-900 text-white">
@@ -121,6 +124,11 @@ function Sidebar({ active, onChange, onLogout, orderCount }: {
             {id === 'orders' && orderCount > 0 && (
               <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${active === id ? 'bg-white/20 text-white' : 'bg-mango/20 text-mango'}`}>
                 {orderCount}
+              </span>
+            )}
+            {id === 'product-reviews' && pendingReviewCount > 0 && (
+              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${active === id ? 'bg-white/20 text-white' : 'bg-mango/20 text-mango'}`}>
+                {pendingReviewCount}
               </span>
             )}
             {active === id && <ChevronRight className="w-3.5 h-3.5 text-white/60 flex-shrink-0" />}
@@ -257,12 +265,23 @@ function ImageCropUploader({ current, adminKey, onUploaded }: {
     canvas.toBlob(async (blob) => {
       if (!blob) return;
       setUploading(true);
-      const fd = new FormData();
-      fd.append('file', blob, `product-${Date.now()}.jpg`);
-      const r = await fetch(`/api/upload?key=${adminKey}`, { method: 'POST', body: fd });
-      const data = await r.json();
-      onUploaded(data.url);
-      setSrc(null); setDone(true); setUploading(false);
+      try {
+        const fd = new FormData();
+        fd.append('file', blob, `product-${Date.now()}.jpg`);
+        const r = await fetch(`/api/upload?key=${adminKey}`, { method: 'POST', body: fd });
+        const data = await r.json();
+        if (!r.ok || !data.url) {
+          setSizeError(data.error || 'Upload failed. Check your Supabase credentials.');
+          setUploading(false);
+          return;
+        }
+        onUploaded(data.url);
+        setSrc(null); setDone(true);
+      } catch {
+        setSizeError('Upload failed. Check your network and Supabase credentials.');
+      } finally {
+        setUploading(false);
+      }
     }, 'image/jpeg', 0.92);
   }
 
@@ -362,7 +381,11 @@ export default function AdminPage() {
 
   const [stagedStatus, setStagedStatus] = useState<Record<string, string>>({});
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [editingSizes, setEditingSizes] = useState<SizeRow[]>([]);
+  const [editingSizes, setEditingSizes]     = useState<SizeRow[]>([]);
+  const [dragIndex, setDragIndex]           = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex]   = useState<number | null>(null);
+  const [adminReviews, setAdminReviews]     = useState<AdminReview[]>([]);
+  const [reviewsTab, setReviewsTab]         = useState<'pending' | 'all'>('pending');
   const [editingOffer, setEditingOffer] = useState<Offer | null>(null);
   const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
 
@@ -405,6 +428,11 @@ export default function AdminPage() {
     if (r.ok) setSubscriptions(await r.json());
   }, [adminKey]);
 
+  const loadAdminReviews = useCallback(async () => {
+    const r = await fetch(`/api/reviews?key=${adminKey}`);
+    if (r.ok) setAdminReviews(await r.json());
+  }, [adminKey]);
+
   useEffect(() => {
     if (authed) { loadProducts(); loadConfig(); }
   }, [authed, loadProducts, loadConfig]);
@@ -412,6 +440,30 @@ export default function AdminPage() {
   useEffect(() => {
     if (authed && section === 'subscriptions') loadSubscriptions();
   }, [authed, section, loadSubscriptions]);
+
+  useEffect(() => {
+    if (authed && section === 'product-reviews') loadAdminReviews();
+  }, [authed, section, loadAdminReviews]);
+
+  async function saveProductOrder(newProducts: Product[]) {
+    await fetch(`/api/products?key=${adminKey}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ order: newProducts.map((p) => p.id) }),
+    });
+    flash('Order saved!');
+  }
+
+  async function moderateReview(id: string, status: 'approved' | 'rejected') {
+    await fetch(`/api/reviews?key=${adminKey}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, status }),
+    });
+    await loadAdminReviews();
+    await loadProducts();
+    flash(status === 'approved' ? 'Review approved!' : 'Review rejected.');
+  }
 
   // Sync size rows when a different product is opened for editing
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -454,7 +506,7 @@ export default function AdminPage() {
 
       {/* ── Desktop sidebar ── */}
       <div className="hidden lg:flex lg:flex-col lg:w-64 lg:flex-shrink-0 border-r border-neutral-800">
-        <Sidebar active={section} onChange={(s) => setSection(s)} onLogout={() => setAuthed(false)} orderCount={pendingCount} />
+        <Sidebar active={section} onChange={(s) => setSection(s)} onLogout={() => setAuthed(false)} orderCount={pendingCount} pendingReviewCount={adminReviews.filter((r) => r.status === 'pending').length} />
       </div>
 
       {/* ── Mobile sidebar overlay ── */}
@@ -462,7 +514,7 @@ export default function AdminPage() {
         <>
           <div className="lg:hidden fixed inset-0 bg-black/60 z-40" onClick={() => setSidebarOpen(false)} />
           <div className="lg:hidden fixed left-0 top-0 bottom-0 w-72 z-50 flex flex-col">
-            <Sidebar active={section} onChange={(s) => { setSection(s); setSidebarOpen(false); }} onLogout={() => setAuthed(false)} orderCount={pendingCount} />
+            <Sidebar active={section} onChange={(s) => { setSection(s); setSidebarOpen(false); }} onLogout={() => setAuthed(false)} orderCount={pendingCount} pendingReviewCount={adminReviews.filter((r) => r.status === 'pending').length} />
           </div>
         </>
       )}
@@ -594,24 +646,59 @@ export default function AdminPage() {
             <div className="max-w-5xl">
               <div className="flex justify-end mb-5">
                 <button
-                  onClick={() => setEditingProduct({ id: `prod-${Date.now()}`, name: '', description: '', price: 9.99, image: '', category: 'fresh', featured: false, inStock: true, rating: 5, reviewCount: 0, sizes: [{ label: '16 oz', ml: 473, price: 9.99 }] })}
+                  onClick={() => setEditingProduct({ id: `prod-${Date.now()}`, name: '', description: '', price: 9.99, image: '', category: 'fresh', flavor: [], ingredients: [], featured: false, inStock: true, rating: 5, reviewCount: 0, sizes: [{ label: '16 oz', ml: 473, price: 9.99 }] })}
                   className="btn-primary text-sm py-2 px-4"
                 >
                   <Plus className="w-4 h-4" /> Add Product
                 </button>
               </div>
+              <p className="text-xs text-neutral-400 mb-3 flex items-center gap-1.5">
+                <GripVertical className="w-3.5 h-3.5" /> Drag cards to reorder — order saves automatically
+              </p>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {products.map((p) => (
-                  <div key={p.id} className="bg-white rounded-2xl border border-neutral-200 overflow-hidden shadow-sm">
+                {products.map((p, i) => (
+                  <div
+                    key={p.id}
+                    draggable
+                    onDragStart={() => setDragIndex(i)}
+                    onDragEnter={() => setDragOverIndex(i)}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={() => {
+                      if (dragIndex === null || dragOverIndex === null || dragIndex === dragOverIndex) return;
+                      const reordered = [...products];
+                      const [moved] = reordered.splice(dragIndex, 1);
+                      reordered.splice(dragOverIndex, 0, moved);
+                      setProducts(reordered);
+                      saveProductOrder(reordered);
+                      setDragIndex(null);
+                      setDragOverIndex(null);
+                    }}
+                    onDragEnd={() => { setDragIndex(null); setDragOverIndex(null); }}
+                    className={`bg-white rounded-2xl border overflow-hidden shadow-sm cursor-grab active:cursor-grabbing select-none transition-all ${
+                      dragOverIndex === i && dragIndex !== i
+                        ? 'border-mango ring-2 ring-mango/30 scale-[1.02]'
+                        : dragIndex === i
+                        ? 'border-neutral-200 opacity-50'
+                        : 'border-neutral-200'
+                    }`}
+                  >
                     <div className="relative h-44 bg-neutral-50">
                       {p.image
                         ? <Image src={p.image} alt={p.name} fill className="object-cover" sizes="300px" />
                         : <div className="w-full h-full flex items-center justify-center text-neutral-300 text-sm">No image</div>}
+                      <div className="absolute top-2 right-2 p-1.5 bg-white/80 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none">
+                        <GripVertical className="w-3.5 h-3.5 text-neutral-400" />
+                      </div>
                     </div>
                     <div className="p-4">
                       <div className="flex justify-between items-start mb-1">
                         <p className="font-bold text-sm text-neutral-900">{p.name}</p>
-                        <p className="text-mango font-bold">{formatPrice(p.price)}</p>
+                        <div className="text-right">
+                          <p className="text-mango font-bold text-sm">{formatPrice(p.price)}</p>
+                          {p.originalPrice && (
+                            <p className="text-[11px] text-neutral-400 line-through">{formatPrice(p.originalPrice)}</p>
+                          )}
+                        </div>
                       </div>
                       <p className="text-xs text-neutral-500 line-clamp-2 mb-3">{p.description}</p>
                       <div className="flex gap-2 mb-3">
@@ -623,10 +710,16 @@ export default function AdminPage() {
                         </span>
                       </div>
                       <div className="flex gap-2">
-                        <button onClick={() => setEditingProduct(p)} className="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold py-2 rounded-lg bg-neutral-100 hover:bg-mango hover:text-white transition-colors">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setEditingProduct(p); }}
+                          className="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold py-2 rounded-lg bg-neutral-100 hover:bg-mango hover:text-white transition-colors"
+                        >
                           <Pencil className="w-3 h-3" /> Edit
                         </button>
-                        <button onClick={() => deleteProduct(p.id)} className="flex items-center gap-1 text-xs font-semibold py-2 px-3 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); deleteProduct(p.id); }}
+                          className="flex items-center gap-1 text-xs font-semibold py-2 px-3 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors"
+                        >
                           <Trash2 className="w-3 h-3" />
                         </button>
                       </div>
@@ -660,6 +753,29 @@ export default function AdminPage() {
                       <div className="space-y-3">
                         <input className="input-field" placeholder="Product Name *" value={editingProduct.name} onChange={(e) => setEditingProduct(p => p && ({ ...p, name: e.target.value }))} />
                         <textarea className="input-field resize-none" rows={2} placeholder="Description" value={editingProduct.description} onChange={(e) => setEditingProduct(p => p && ({ ...p, description: e.target.value }))} />
+                      </div>
+
+                      {/* Flavors & Ingredients */}
+                      <div className="grid grid-cols-1 gap-3">
+                        <div>
+                          <label className="text-xs font-semibold text-neutral-500 block mb-1">Flavors <span className="font-normal normal-case">(comma-separated)</span></label>
+                          <input
+                            className="input-field"
+                            placeholder="e.g. Mango, Pineapple, Ginger"
+                            value={(editingProduct.flavor ?? []).join(', ')}
+                            onChange={(e) => setEditingProduct(p => p && ({ ...p, flavor: e.target.value.split(',').map(f => f.trim()).filter(Boolean) }))}
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs font-semibold text-neutral-500 block mb-1">Ingredients <span className="font-normal normal-case">(comma-separated)</span></label>
+                          <textarea
+                            className="input-field resize-none"
+                            rows={2}
+                            placeholder="e.g. Fresh Mango, Pineapple Juice, Ginger Root, Lime"
+                            value={(editingProduct.ingredients ?? []).join(', ')}
+                            onChange={(e) => setEditingProduct(p => p && ({ ...p, ingredients: e.target.value.split(',').map(i => i.trim()).filter(Boolean) }))}
+                          />
+                        </div>
                       </div>
 
                       {/* Sizes & Prices */}
@@ -743,6 +859,33 @@ export default function AdminPage() {
                           <label className="text-xs font-semibold text-neutral-500 block mb-1">Badge</label>
                           <input className="input-field" placeholder="e.g. Best Seller" value={editingProduct.badge || ''} onChange={(e) => setEditingProduct(p => p && ({ ...p, badge: e.target.value }))} />
                         </div>
+                      </div>
+
+                      {/* Compare-at price */}
+                      <div>
+                        <label className="text-xs font-semibold text-neutral-500 block mb-1">
+                          Compare-at Price (£) <span className="font-normal normal-case">— shows strikethrough discount</span>
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 text-sm font-medium pointer-events-none">£</span>
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            className="input-field pl-7"
+                            placeholder="Leave empty for no sale"
+                            value={editingProduct.originalPrice ?? ''}
+                            onChange={(e) => setEditingProduct(p => p && ({
+                              ...p,
+                              originalPrice: e.target.value ? parseFloat(e.target.value) : undefined,
+                            }))}
+                          />
+                        </div>
+                        {editingProduct.originalPrice && editingProduct.originalPrice > editingProduct.price && (
+                          <p className="text-xs text-green-600 mt-1 font-semibold">
+                            {Math.round((1 - editingProduct.price / editingProduct.originalPrice) * 100)}% off — discount badge will show on card
+                          </p>
+                        )}
                       </div>
 
                       {/* Toggles */}
@@ -1157,6 +1300,118 @@ export default function AdminPage() {
               ))}
             </div>
           )}
+
+          {/* ── PRODUCT REVIEWS ── */}
+          {section === 'product-reviews' && (() => {
+            const filtered = reviewsTab === 'pending'
+              ? adminReviews.filter((r) => r.status === 'pending')
+              : adminReviews;
+
+            const STAR_COLORS = ['', 'text-red-400', 'text-orange-400', 'text-yellow-400', 'text-lime-500', 'text-green-500'];
+
+            return (
+              <div className="max-w-4xl space-y-5">
+                {/* Tabs */}
+                <div className="flex items-center gap-3">
+                  {(['pending', 'all'] as const).map((tab) => {
+                    const count = tab === 'pending'
+                      ? adminReviews.filter((r) => r.status === 'pending').length
+                      : adminReviews.length;
+                    return (
+                      <button
+                        key={tab}
+                        onClick={() => setReviewsTab(tab)}
+                        className={`px-4 py-2 rounded-full text-sm font-semibold border-2 transition-all capitalize ${
+                          reviewsTab === tab
+                            ? 'border-mango bg-mango/5 text-mango'
+                            : 'border-neutral-200 text-neutral-500 hover:border-mango/50'
+                        }`}
+                      >
+                        {tab === 'pending' ? 'Pending' : 'All Reviews'} ({count})
+                      </button>
+                    );
+                  })}
+                  <button onClick={loadAdminReviews} className="ml-auto text-xs text-neutral-400 hover:text-neutral-700 transition-colors">
+                    Refresh
+                  </button>
+                </div>
+
+                {filtered.length === 0 ? (
+                  <div className="bg-white rounded-2xl p-16 text-center border border-neutral-200">
+                    <MessageSquare className="w-10 h-10 text-neutral-300 mx-auto mb-3" />
+                    <p className="text-neutral-400">
+                      {reviewsTab === 'pending' ? 'No reviews pending approval.' : 'No reviews yet.'}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {filtered.map((r) => (
+                      <div key={r.id} className="bg-white rounded-2xl border border-neutral-200 p-5 shadow-sm">
+                        <div className="flex flex-wrap gap-4 items-start justify-between">
+                          <div className="flex-1 min-w-0">
+                            {/* Product + status */}
+                            <div className="flex items-center gap-2 mb-2 flex-wrap">
+                              <span className="text-xs font-bold bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded-full">
+                                {r.product_name ?? r.product_id}
+                              </span>
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
+                                r.status === 'approved'
+                                  ? 'bg-green-100 text-green-700'
+                                  : r.status === 'rejected'
+                                  ? 'bg-red-100 text-red-600'
+                                  : 'bg-yellow-100 text-yellow-700'
+                              }`}>
+                                {r.status}
+                              </span>
+                              <span className="font-mono text-[10px] text-neutral-400">Order: {r.order_id}</span>
+                            </div>
+
+                            {/* Reviewer + rating */}
+                            <div className="flex items-center gap-2 mb-1.5">
+                              <p className="font-semibold text-sm">{r.customer_name}</p>
+                              <p className="text-xs text-neutral-400">{r.customer_email}</p>
+                              <span className={`font-bold text-sm ${STAR_COLORS[r.rating]}`}>
+                                {'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}
+                              </span>
+                            </div>
+
+                            {/* Comment */}
+                            {r.comment ? (
+                              <p className="text-sm text-neutral-600 leading-relaxed">&ldquo;{r.comment}&rdquo;</p>
+                            ) : (
+                              <p className="text-xs text-neutral-400 italic">No comment</p>
+                            )}
+
+                            <p className="text-[11px] text-neutral-400 mt-2">
+                              {new Date(r.created_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                          </div>
+
+                          {/* Actions */}
+                          {r.status === 'pending' && (
+                            <div className="flex gap-2 flex-shrink-0">
+                              <button
+                                onClick={() => moderateReview(r.id, 'approved')}
+                                className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl bg-green-50 text-green-700 hover:bg-green-100 transition-colors"
+                              >
+                                <ThumbsUp className="w-3.5 h-3.5" /> Approve
+                              </button>
+                              <button
+                                onClick={() => moderateReview(r.id, 'rejected')}
+                                className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                              >
+                                <ThumbsDown className="w-3.5 h-3.5" /> Reject
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
         </main>
       </div>

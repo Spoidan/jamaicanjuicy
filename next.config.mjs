@@ -8,6 +8,7 @@ const nextConfig = {
       { protocol: 'https', hostname: 'p77-sign.tiktokcdn-us.com' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'res.cloudinary.com' },
+      { protocol: 'https', hostname: '**.supabase.co' },
     ],
   },
   experimental: {

@@ -3,12 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/lib/auth-store';
 import { useRouter } from 'next/navigation';
-import { Package, ArrowLeft } from 'lucide-react';
+import { Package, ArrowLeft, Star } from 'lucide-react';
 import Link from 'next/link';
 import { formatPrice } from '@/lib/utils';
+import { ReviewsDrawer } from '@/components/ReviewsDrawer';
 
 interface OrderItem {
-  product: { name: string; image: string };
+  product: { id: string; name: string; image: string };
   selectedSize: { label: string; price: number };
   quantity: number;
 }
@@ -28,13 +29,21 @@ const STATUS_COLORS: Record<string, string> = {
   preparing: 'bg-purple-100 text-purple-700',
   ready:     'bg-green-100 text-green-700',
   delivered: 'bg-neutral-100 text-neutral-500',
+  picked_up: 'bg-neutral-100 text-neutral-500',
 };
+
+const DELIVERED = ['delivered', 'picked_up'];
 
 export default function MyOrdersPage() {
   const { user, verified } = useAuthStore();
-  const router = useRouter();
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
+  const router             = useRouter();
+  const [orders, setOrders]     = useState<Order[]>([]);
+  const [loading, setLoading]   = useState(true);
+  const [reviewTarget, setReviewTarget] = useState<{
+    productId: string;
+    productName: string;
+    orderId: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!verified || !user) { router.push('/'); return; }
@@ -76,7 +85,7 @@ export default function MyOrdersPage() {
                     <div className="flex items-center gap-2 mb-0.5">
                       <span className="font-mono text-sm font-bold text-neutral-700">{order.id}</span>
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${STATUS_COLORS[order.status] ?? 'bg-neutral-100 text-neutral-500'}`}>
-                        {order.status}
+                        {order.status.replace('_', ' ')}
                       </span>
                     </div>
                     <p className="text-xs text-neutral-400 capitalize">
@@ -85,15 +94,31 @@ export default function MyOrdersPage() {
                   </div>
                   <p className="text-xl font-bold gradient-text">{formatPrice(order.total)}</p>
                 </div>
-                <div className="border-t border-neutral-50 pt-3 space-y-1.5">
+
+                <div className="border-t border-neutral-50 pt-3 space-y-2">
                   {order.items?.map((item, i) => (
-                    <div key={i} className="flex justify-between text-sm">
-                      <span className="text-neutral-500 truncate mr-4">
+                    <div key={i} className="flex items-center justify-between gap-3">
+                      <span className="text-sm text-neutral-500 truncate">
                         {item.product.name} ({item.selectedSize.label}) × {item.quantity}
                       </span>
-                      <span className="font-semibold flex-shrink-0">
-                        {formatPrice(item.selectedSize.price * item.quantity)}
-                      </span>
+                      <div className="flex items-center gap-3 flex-shrink-0">
+                        <span className="text-sm font-semibold">
+                          {formatPrice(item.selectedSize.price * item.quantity)}
+                        </span>
+                        {DELIVERED.includes(order.status) && (
+                          <button
+                            onClick={() => setReviewTarget({
+                              productId: item.product.id,
+                              productName: item.product.name,
+                              orderId: order.id,
+                            })}
+                            className="flex items-center gap-1 text-xs font-semibold text-mango hover:text-mango/70 transition-colors"
+                          >
+                            <Star className="w-3 h-3" />
+                            Review
+                          </button>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -102,6 +127,16 @@ export default function MyOrdersPage() {
           </div>
         )}
       </div>
+
+      {reviewTarget && (
+        <ReviewsDrawer
+          productId={reviewTarget.productId}
+          productName={reviewTarget.productName}
+          preselectedOrderId={reviewTarget.orderId}
+          isOpen
+          onClose={() => setReviewTarget(null)}
+        />
+      )}
     </div>
   );
 }

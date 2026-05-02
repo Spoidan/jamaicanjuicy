@@ -7,7 +7,7 @@ function authCheck(req: NextRequest) {
 
 export async function GET() {
   try {
-    const rows = await sql`SELECT data FROM products ORDER BY created_at ASC`;
+    const rows = await sql`SELECT data FROM products ORDER BY COALESCE((data->>'displayOrder')::int, 999999) ASC, created_at ASC`;
     return NextResponse.json(rows.map((r) => parseJson(r.data)));
   } catch (err) {
     console.error('[products GET]', err);
@@ -27,6 +27,24 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error('[products POST]', err);
+    return NextResponse.json({ error: String(err) }, { status: 500 });
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  if (!authCheck(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  try {
+    const { order } = await req.json() as { order: string[] };
+    for (let i = 0; i < order.length; i++) {
+      await sql`
+        UPDATE products
+        SET data = jsonb_set(data, '{displayOrder}', ${JSON.stringify(i)}::jsonb)
+        WHERE id = ${order[i]}
+      `;
+    }
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error('[products PATCH]', err);
     return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }
