@@ -1,16 +1,17 @@
 import type { Metadata } from 'next';
-import { siteContent } from '@/data/content';
-import { AboutSection } from '@/components/AboutSection';
 import { Footer } from '@/components/Footer';
 import Image from 'next/image';
+import { getSiteConfig } from '@/lib/site-config';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Our Story',
   description: 'Learn about the passion, culture, and family behind Jamaican Juicy.',
 };
 
-export default function AboutPage() {
-  const { about, contact } = siteContent;
+export default async function AboutPage() {
+  const { about, contact } = await getSiteConfig();
 
   return (
     <>
