@@ -40,6 +40,19 @@ const STATUS_COLORS: Record<string, string> = {
 };
 const COMPLETED_STATUSES = ['delivered', 'picked_up'];
 
+const OFFER_COLOR_PRESETS: { name: string; value: string }[] = [
+  { name: 'Sunset',   value: 'from-orange-500 to-amber-400' },
+  { name: 'Mango',    value: 'from-yellow-500 to-orange-500' },
+  { name: 'Coral',    value: 'from-red-500 to-orange-400' },
+  { name: 'Berry',    value: 'from-pink-500 to-rose-400' },
+  { name: 'Grape',    value: 'from-purple-500 to-pink-500' },
+  { name: 'Lime',     value: 'from-lime-500 to-green-400' },
+  { name: 'Ocean',    value: 'from-blue-500 to-cyan-400' },
+  { name: 'Sky',      value: 'from-cyan-500 to-sky-400' },
+  { name: 'Forest',   value: 'from-emerald-600 to-teal-400' },
+  { name: 'Midnight', value: 'from-slate-700 to-slate-500' },
+];
+
 const NAV_ITEMS: { id: Section; label: string; icon: React.ReactNode; desc: string }[] = [
   { id: 'orders',        label: 'Orders',          icon: <Package className="w-4 h-4" />,       desc: 'Manage & fulfil orders' },
   { id: 'products',      label: 'Products',         icon: <Settings className="w-4 h-4" />,      desc: 'Add, edit, delete juices' },
@@ -1007,7 +1020,32 @@ export default function AdminPage() {
                       </div>
                       <textarea className="input-field resize-none" rows={2} placeholder="Description" value={editingOffer.description} onChange={(e) => setEditingOffer(o => o && ({ ...o, description: e.target.value }))} />
                       <input className="input-field" placeholder="CTA text" value={editingOffer.cta} onChange={(e) => setEditingOffer(o => o && ({ ...o, cta: e.target.value }))} />
-                      <input className="input-field" placeholder="Tailwind gradient e.g. from-orange-500 to-amber-400" value={editingOffer.color} onChange={(e) => setEditingOffer(o => o && ({ ...o, color: e.target.value }))} />
+                      <div>
+                        <label className="block text-xs font-semibold text-neutral-600 mb-2">Card color</label>
+                        <div className="grid grid-cols-5 gap-2">
+                          {OFFER_COLOR_PRESETS.map(preset => {
+                            const active = editingOffer.color === preset.value;
+                            return (
+                              <button
+                                key={preset.value}
+                                type="button"
+                                onClick={() => setEditingOffer(o => o && ({ ...o, color: preset.value }))}
+                                className={`group flex flex-col items-center gap-1 focus:outline-none`}
+                                title={preset.name}
+                              >
+                                <span className={`relative w-full aspect-square rounded-xl bg-gradient-to-br ${preset.value} ring-2 transition-all ${active ? 'ring-mango ring-offset-2 ring-offset-white scale-105' : 'ring-transparent group-hover:ring-neutral-200'}`}>
+                                  {active && (
+                                    <span className="absolute inset-0 flex items-center justify-center">
+                                      <Check className="w-4 h-4 text-white drop-shadow" />
+                                    </span>
+                                  )}
+                                </span>
+                                <span className={`text-[10px] leading-none ${active ? 'text-mango font-semibold' : 'text-neutral-400'}`}>{preset.name}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
                     </div>
                     <div className="flex gap-3 mt-4">
                       <button onClick={() => setEditingOffer(null)} className="btn-outline flex-1">Cancel</button>
