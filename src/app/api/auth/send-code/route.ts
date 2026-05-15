@@ -1,5 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import nodemailer from 'nodemailer';
 import sql from '@/lib/db';
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,14 +26,21 @@ export async function POST(req: NextRequest) {
       ON CONFLICT (email) DO UPDATE SET code = EXCLUDED.code, expires_at = EXCLUDED.expires_at
     `;
 
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`\n🧃 [DEV] Verification code for ${email}: ${code}\n`);
-    }
-
-    return NextResponse.json({
-      success: true,
-      ...(process.env.NODE_ENV === 'development' && { devCode: code }),
+    await transporter.sendMail({
+      from: `"Jamaican Juicy" <${process.env.SMTP_FROM}>`,
+      to: email,
+      subject: 'Your verification code',
+      html: `
+        <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px">
+          <h2 style="color:#e85d04">Jamaican Juicy</h2>
+          <p>Your verification code is:</p>
+          <div style="font-size:36px;font-weight:bold;letter-spacing:8px;color:#1a1a1a;margin:24px 0">${code}</div>
+          <p style="color:#666;font-size:14px">This code expires in 10 minutes. If you didn't request this, ignore this email.</p>
+        </div>
+      `,
     });
+
+    return NextResponse.json({ success: true });
   } catch (err) {
     console.error('[send-code POST]', err);
     return NextResponse.json({ error: String(err) }, { status: 500 });

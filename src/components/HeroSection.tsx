@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { ArrowRight, Star, ShieldCheck, Leaf } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -28,10 +27,10 @@ export function HeroSection({ config }: Props) {
         style={{ background: 'radial-gradient(circle, #fed7aa 0%, transparent 70%)', transform: 'translateY(-50%)' }} />
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-12">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center min-h-[80vh]">
+        <div className="flex items-center min-h-[80vh]">
 
-          {/* Left — Text */}
-          <div>
+          {/* Text */}
+          <div className="max-w-3xl">
             {/* Headline */}
             <motion.h1
               initial={{ opacity: 0, y: 24 }}
@@ -94,56 +93,6 @@ export function HeroSection({ config }: Props) {
             </motion.div>
           </div>
 
-          {/* Right — Product photo collage */}
-          <div className="relative h-[480px] lg:h-[580px] hidden sm:block">
-            {/* Soft glow behind cards */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-mango/20 rounded-full blur-3xl" />
-
-            {/* Center feature card */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.2 }}
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-80 rounded-3xl overflow-hidden shadow-2xl z-20 ring-4 ring-white"
-            >
-              <Image src="/images/juice-3.jpeg" alt="Blue Lagoon" fill className="object-cover" sizes="224px" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-              <div className="absolute bottom-4 left-4 right-4">
-                <p className="text-white font-bold text-sm">Blue Lagoon</p>
-                <p className="text-white/70 text-xs">Butterfly Pea · Coconut · Kiwi</p>
-              </div>
-            </motion.div>
-
-            {/* Top-left */}
-            <motion.div
-              initial={{ opacity: 0, x: -20, rotate: -4 }}
-              animate={{ opacity: 1, x: 0, rotate: -4 }}
-              transition={{ duration: 0.6, delay: 0.35 }}
-              className="absolute top-8 left-4 w-40 h-56 rounded-2xl overflow-hidden shadow-xl z-10 ring-2 ring-white"
-            >
-              <Image src="/images/juice-2.jpeg" alt="Hibiscus Punch" fill className="object-cover" sizes="160px" />
-            </motion.div>
-
-            {/* Top-right */}
-            <motion.div
-              initial={{ opacity: 0, x: 20, rotate: 4 }}
-              animate={{ opacity: 1, x: 0, rotate: 4 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="absolute top-4 right-4 w-40 h-52 rounded-2xl overflow-hidden shadow-xl z-10 ring-2 ring-white"
-            >
-              <Image src="/images/juice-1.jpeg" alt="Activated Detox" fill className="object-cover" sizes="160px" />
-            </motion.div>
-
-            {/* Bottom-right */}
-            <motion.div
-              initial={{ opacity: 0, y: 20, rotate: 3 }}
-              animate={{ opacity: 1, y: 0, rotate: 3 }}
-              transition={{ duration: 0.6, delay: 0.45 }}
-              className="absolute bottom-4 right-10 w-44 h-56 rounded-2xl overflow-hidden shadow-xl z-10 ring-2 ring-white"
-            >
-              <Image src="/images/juice-4.jpeg" alt="Cane Coconut" fill className="object-cover" sizes="176px" />
-            </motion.div>
-          </div>
         </div>
 
         {/* Stats bar */}
