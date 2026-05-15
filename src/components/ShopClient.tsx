@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { ProductCard } from './ProductCard';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types';
@@ -20,7 +21,12 @@ const CATEGORIES: { value: Category; label: string }[] = [
 ];
 
 export function ShopClient({ products }: Props) {
-  const [category, setCategory] = useState<Category>('all');
+  const searchParams = useSearchParams();
+  const initialCategory = (() => {
+    const q = searchParams?.get('category') as Category | null;
+    return q && CATEGORIES.some(c => c.value === q) ? q : 'all';
+  })();
+  const [category, setCategory] = useState<Category>(initialCategory);
   const [sort, setSort] = useState<'default' | 'price-asc' | 'price-desc' | 'rating'>('default');
 
   let filtered = category === 'all' ? products : products.filter((p) => p.category === category);

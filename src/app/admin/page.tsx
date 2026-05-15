@@ -14,7 +14,8 @@ import Image from 'next/image';
 /* ── Types ── */
 interface Product { id: string; name: string; description: string; price: number; originalPrice?: number; image: string; category: string; flavor: string[]; ingredients: string[]; featured: boolean; badge?: string; inStock: boolean; rating: number; reviewCount: number; sizes: { label: string; ml: number; price: number }[] }
 interface AdminReview { id: string; product_id: string; product_name: string; order_id: string; customer_name: string; customer_email: string; rating: number; comment: string; status: string; created_at: string; }
-interface Offer { id: string; emoji: string; title: string; description: string; cta: string; color: string; productId: string }
+type OfferAction = 'product' | 'shop' | 'category' | 'about';
+interface Offer { id: string; emoji: string; title: string; description: string; cta: string; color: string; productId: string; actionType?: OfferAction; category?: string }
 interface Testimonial { id: string; name: string; location: string; rating: number; text: string; avatar: string }
 interface SiteConfig {
   hero: { headline: string; subheadline: string; ctaText: string };
@@ -39,6 +40,22 @@ const STATUS_COLORS: Record<string, string> = {
   picked_up: 'bg-neutral-100 text-neutral-600',
 };
 const COMPLETED_STATUSES = ['delivered', 'picked_up'];
+
+const OFFER_EMOJI_PRESETS = ['🎉', '🎁', '🔥', '⭐', '✨', '💧', '🌺', '🌴', '🍊', '🍋', '🍓', '🥭', '🍍', '🥥', '🍹', '🥤', '🍃', '💚', '❤️', '🌞'];
+
+const OFFER_CATEGORY_OPTIONS: { value: string; label: string }[] = [
+  { value: 'fresh', label: 'Fresh Blends' },
+  { value: 'seasonal', label: 'Seasonal' },
+  { value: 'bundle', label: 'Bundles' },
+  { value: 'bottled', label: 'Bottled' },
+];
+
+const OFFER_ACTION_OPTIONS: { value: OfferAction; label: string; help: string }[] = [
+  { value: 'product',  label: 'Add a juice to cart', help: 'Clicking the button drops a specific juice into the shopping cart.' },
+  { value: 'shop',     label: 'Open the shop',       help: 'Sends visitors to the /shop page so they can browse everything.' },
+  { value: 'category', label: 'Show a category',     help: 'Opens /shop pre-filtered to one category (e.g. Bundles).' },
+  { value: 'about',    label: 'Show Our Story',      help: 'Sends visitors to the /about page.' },
+];
 
 const OFFER_COLOR_PRESETS: { name: string; value: string }[] = [
   { name: 'Sunset',   value: 'from-orange-500 to-amber-400' },
@@ -986,7 +1003,7 @@ export default function AdminPage() {
 
               {/* Offer cards */}
               <div className="flex justify-end">
-                <button onClick={() => setEditingOffer({ id: `offer-${Date.now()}`, emoji: '🎉', title: '', description: '', cta: 'Shop Now', color: 'from-orange-500 to-amber-400', productId: '' })} className="btn-primary text-sm py-2 px-4">
+                <button onClick={() => setEditingOffer({ id: `offer-${Date.now()}`, emoji: '🎉', title: '', description: '', cta: 'Shop Now', color: 'from-orange-500 to-amber-400', productId: '', actionType: 'shop' })} className="btn-primary text-sm py-2 px-4">
                   <Plus className="w-4 h-4" /> Add Offer
                 </button>
               </div>
@@ -1013,13 +1030,71 @@ export default function AdminPage() {
                 <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
                   <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
                     <div className="flex justify-between mb-4"><h3 className="font-bold">Edit Offer</h3><button onClick={() => setEditingOffer(null)}><X className="w-5 h-5" /></button></div>
-                    <div className="space-y-3">
-                      <div className="grid grid-cols-2 gap-3">
-                        <input className="input-field" placeholder="Emoji" value={editingOffer.emoji} onChange={(e) => setEditingOffer(o => o && ({ ...o, emoji: e.target.value }))} />
-                        <input className="input-field" placeholder="Title" value={editingOffer.title} onChange={(e) => setEditingOffer(o => o && ({ ...o, title: e.target.value }))} />
+                    <div className="space-y-3 max-h-[70vh] overflow-y-auto pr-1">
+                      <input className="input-field" placeholder="Title" value={editingOffer.title} onChange={(e) => setEditingOffer(o => o && ({ ...o, title: e.target.value }))} />
+                      <div>
+                        <label className="block text-xs font-semibold text-neutral-600 mb-2">Emoji</label>
+                        <div className="grid grid-cols-10 gap-1.5">
+                          {OFFER_EMOJI_PRESETS.map(em => {
+                            const active = editingOffer.emoji === em;
+                            return (
+                              <button
+                                key={em}
+                                type="button"
+                                onClick={() => setEditingOffer(o => o && ({ ...o, emoji: em }))}
+                                className={`aspect-square rounded-lg text-xl flex items-center justify-center transition-all ${active ? 'bg-mango/10 ring-2 ring-mango' : 'bg-neutral-50 hover:bg-neutral-100 ring-1 ring-neutral-200'}`}
+                              >
+                                {em}
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
                       <textarea className="input-field resize-none" rows={2} placeholder="Description" value={editingOffer.description} onChange={(e) => setEditingOffer(o => o && ({ ...o, description: e.target.value }))} />
-                      <input className="input-field" placeholder="CTA text" value={editingOffer.cta} onChange={(e) => setEditingOffer(o => o && ({ ...o, cta: e.target.value }))} />
+                      <input className="input-field" placeholder="Button text (e.g. Shop Now)" value={editingOffer.cta} onChange={(e) => setEditingOffer(o => o && ({ ...o, cta: e.target.value }))} />
+                      <div>
+                        <label className="block text-xs font-semibold text-neutral-600 mb-2">What does the button do?</label>
+                        <div className="space-y-2">
+                          {OFFER_ACTION_OPTIONS.map(opt => {
+                            const currentType = editingOffer.actionType ?? 'product';
+                            const active = currentType === opt.value;
+                            return (
+                              <button
+                                key={opt.value}
+                                type="button"
+                                onClick={() => setEditingOffer(o => o && ({ ...o, actionType: opt.value }))}
+                                className={`w-full text-left rounded-xl border-2 p-3 transition-all ${active ? 'border-mango bg-mango/5' : 'border-neutral-200 hover:border-neutral-300'}`}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <span className={`text-sm font-semibold ${active ? 'text-mango' : 'text-neutral-700'}`}>{opt.label}</span>
+                                  {active && <Check className="w-4 h-4 text-mango" />}
+                                </div>
+                                <p className="text-xs text-neutral-400 mt-0.5">{opt.help}</p>
+                              </button>
+                            );
+                          })}
+                        </div>
+                        {(editingOffer.actionType ?? 'product') === 'product' && (
+                          <select
+                            className="input-field mt-3"
+                            value={editingOffer.productId}
+                            onChange={(e) => setEditingOffer(o => o && ({ ...o, productId: e.target.value }))}
+                          >
+                            <option value="">— Pick a juice —</option>
+                            {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                          </select>
+                        )}
+                        {editingOffer.actionType === 'category' && (
+                          <select
+                            className="input-field mt-3"
+                            value={editingOffer.category ?? ''}
+                            onChange={(e) => setEditingOffer(o => o && ({ ...o, category: e.target.value }))}
+                          >
+                            <option value="">— Pick a category —</option>
+                            {OFFER_CATEGORY_OPTIONS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                          </select>
+                        )}
+                      </div>
                       <div>
                         <label className="block text-xs font-semibold text-neutral-600 mb-2">Card color</label>
                         <div className="grid grid-cols-5 gap-2">
